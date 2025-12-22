@@ -1,3 +1,4 @@
+
 package org.mql.ai.repositories;
 
 import java.util.List;
