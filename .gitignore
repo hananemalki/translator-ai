@@ -1,0 +1,31 @@
+# Backend
+translator-backend/target/
+translator-backend/.settings/
+translator-backend/.classpath
+translator-backend/.project
+translator-backend/bin/
+*.class
+
+# Frontend
+translator-frontend/node_modules/
+translator-frontend/build/
+translator-frontend/.env
+
+# Chrome Extension
+chrome-extension/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Sensitive data
+application.properties
+prompts.properties

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darija Translator</title>
+    <link rel="stylesheet" href="css/sidepanel.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="authScreen" class="screen">
+            <div class="auth-header">
+                <img src="icons/icon128.png" alt="Logo" class="auth-logo">
+                <h1>AI Translator</h1>
+                <p class="auth-subtitle">Multilingual Translation Assistant</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Login</button>
+                <button class="tab-btn" data-tab="signup">Sign Up</button>
+            </div>
+
+            <div id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <button class="btn-primary" id="loginBtn">Login</button>
+            </div>
+
+            <div id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="signupUsername" placeholder="Choose username">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" placeholder="Choose password (6+ chars)">
+                </div>
+                <div id="signupError" class="error-message"></div>
+                <button class="btn-primary" id="signupBtn">Sign Up</button>
+            </div>
+        </div>
+
+        <div id="mainScreen" class="screen" style="display: none;">
+            <div class="main-header">
+                <div class="user-info">
+                    <span id="usernameDisplay"></span>
+                </div>
+                <button class="btn-logout" id="logoutBtn">Logout</button>
+            </div>
+
+            <div class="nav-tabs">
+                <button class="nav-btn active" data-view="translator"> Translator</button>
+                <button class="nav-btn" data-view="complaints"> Complaints</button>
+                <button class="nav-btn admin-only" data-view="admin" style="display: none;"> Admin</button>
+            </div>
+
+            <div id="translatorView" class="view active">
+                <div class="translator-container">
+                    <div class="language-selector">
+                        <label>Translate to:</label>
+                        <select id="targetLanguage">
+                            <option value="darija">Moroccan Darija</option>
+                            <option value="english">English</option>
+                            <option value="french">French</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="german">German</option>
+                            <option value="arabic">Arabic</option>
+                        </select>
+                    </div>
+
+                    <div class="translation-tabs">
+                        <button class="translation-tab-btn active" data-mode="text"> Text</button>
+                        <button class="translation-tab-btn" data-mode="image"> Image</button>
+                        <button class="translation-tab-btn" data-mode="audio"> Audio</button>
+                    </div>
+
+                    <div id="textMode" class="translation-mode active">
+                        <div class="input-section">
+                            <label>Text to translate</label>
+                            <textarea 
+                                id="inputText" 
+                                placeholder="Enter text or select from webpage..."
+                                maxlength="500"
+                            ></textarea>
+                            <div class="char-count">
+                                <span id="charCount">0</span> / 500
+                            </div>
+                        </div>
+
+                        <button class="btn-translate" id="translateBtn">
+                             Translate
+                        </button>
+                    </div>
+
+                    <div id="imageMode" class="translation-mode">
+                        <div class="image-upload-section">
+                            <label>Upload Image</label>
+                            <div class="upload-area-small" id="imageUploadArea">
+                                <div class="upload-text-small">Click to upload image</div>
+                                <div class="upload-hint-small">PNG, JPG (max 5MB)</div>
+                            </div>
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                            
+                            <div id="imagePreview" class="image-preview-container" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview">
+                                <button class="btn-remove-preview" onclick="removeImage()">✕ Remove</button>
+                            </div>
+                        </div>
+
+                        <button class="btn-translate" id="translateImageBtn" disabled>
+                            Translate Image
+                        </button>
+                    </div>
+
+                    <div id="audioMode" class="translation-mode">
+                        <div class="audio-section">
+                            <label>Record or Upload Audio</label>
+                            
+                            <div class="audio-controls">
+                                <button class="btn-record" id="recordBtn">
+                                    <span id="recordText">Start Recording</span>
+                                </button>
+                                
+                                <div class="recording-indicator" id="recordingIndicator" style="display: none;">
+                                    <div class="pulse-dot"></div>
+                                    <span>Recording... <span id="recordTime">0:00</span></span>
+                                </div>
+                            </div>
+
+                            <div class="or-divider">OR</div>
+
+                            <div class="upload-area-small" id="audioUploadArea">
+                                <div class="upload-text-small">Click to upload audio</div>
+                                <div class="upload-hint-small">MP3, WAV, WebM (max 10MB)</div>
+                            </div>
+                            <input type="file" id="audioInput" accept="audio/*" style="display: none;">
+                            
+                            <div id="audioPreview" class="audio-preview-container" style="display: none;">
+                                <audio id="previewAudio" controls></audio>
+                                <button class="btn-remove-preview" onclick="removeAudio()">✕ Remove</button>
+                            </div>
+                        </div>
+
+                        <button class="btn-translate" id="translateAudioBtn" disabled>
+                             Translate Audio
+                        </button>
+                    </div>
+
+                    <div class="output-section" id="outputSection" style="display: none;">
+                        <label>Translation</label>
+                        <div class="translation-result" id="outputText"></div>
+                        <button class="btn-copy" id="copyBtn"> Copy</button>
+                    </div>
+
+                    <div id="translateStatus" class="status-message"></div>
+                </div>
+            </div>
+
+            <div id="complaintsView" class="view">
+                <div class="complaints-header">
+                    <h2>My Complaints</h2>
+                    <button class="btn-primary-small" id="newComplaintBtn">+ New</button>
+                </div>
+
+                <div id="complaintsList" class="complaints-list">
+                    <div class="loading">Loading complaints...</div>
+                </div>
+
+                <div id="createComplaintForm" class="complaint-form" style="display: none;">
+                    <h3>Create Complaint</h3>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="complaintType">
+                            <option value="TRANSLATION_ERROR">Translation Error</option>
+                            <option value="TECHNICAL_ISSUE">Technical Issue</option>
+                            <option value="FEATURE_REQUEST">Feature Request</option>
+                            <option value="ACCOUNT_ISSUE">Account Issue</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" id="complaintSubject" placeholder="Brief description">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="complaintDescription" rows="4" placeholder="Detailed explanation"></textarea>
+                    </div>
+                    <div id="complaintError" class="error-message"></div>
+                    <div class="form-actions">
+                        <button class="btn-primary-small" id="submitComplaintBtn">Submit</button>
+                        <button class="btn-secondary-small" id="cancelComplaintBtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="adminView" class="view">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="admin-complaints">Complaints</button>
+                    <button class="admin-tab-btn" data-tab="admin-users">Users</button>
+                </div>
+
+                <div id="adminComplaintsTab" class="admin-tab active">
+                    <div class="complaints-header">
+                        <h2>All Complaints</h2>
+                        <div class="filter-group">
+                            <select id="statusFilter">
+                                <option value="all">All Status</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="RESOLVED">Resolved</option>
+                                <option value="CLOSED">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="adminComplaintsList" class="complaints-list">
+                        <div class="loading">Loading complaints...</div>
+                    </div>
+                </div>
+
+                <div id="adminUsersTab" class="admin-tab">
+                    <div class="complaints-header">
+                        <h2>User Management</h2>
+                    </div>
+                    <div id="adminUsersList" class="users-list">
+                        <div class="loading">Loading users...</div>
+                    </div>
+                </div>
+
+                <div id="complaintDetailModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <button class="btn-close-modal" onclick="closeComplaintDetail()">✕</button>
+                        <div id="complaintDetailContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="js/sidepanel.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+#  Darija Translator - Backend API - Hanane Malki 
+
+## Project Description
+
+Spring Boot REST API for multilingual translation with specialized support for Moroccan Darija. The system integrates Google's Gemini API to perform text, image, and audio translations, with a complete complaint management system and user authentication.
+
+##  Architecture
+
+### Technologies Used
+
+- **Framework**: Spring Boot 2.x
+- **Security**: Spring Security with Basic Authentication
+- **Database**: MySQL with JPA/Hibernate
+- **Serialization**: Jackson (ObjectMapper, JavaTimeModule)
+- **HTTP Client**: WebClient (Spring WebFlux)
+- **AI API**: Google Gemini API (gemini-2.5-flash)
+- **Encoding**: BCrypt for passwords
+
+### Project Structure
+
+```
+org.mql.ai/
+├── config/
+│   ├── JacksonConfig.java           # Jackson configuration for JSON serialization
+│   └── SecurityConfig.java          # Spring Security & CORS configuration
+├── controllers/
+│   ├── AuthController.java          # Authentication endpoints (signup/login)
+│   ├── ComplaintController.java     # Complaint management
+│   └── TranslatorRestController.java # Translation API
+├── buisness/
+│   ├── ComplaintService.java        # Complaint service interface
+│   ├── ComplaintServiceDefault.java # Complaint service implementation
+│   ├── TranslationService.java      # Translation service interface
+│   ├── TranslationServiceDefault.java # Translation service implementation
+│   ├── UserService.java             # User service interface
+│   └── UserServiceDefault.java      # User service implementation
+├── models/
+│   ├── User.java
+│   ├── Complaint.java
+│   ├── TranslationRequest.java
+│   ├── TranslationResponse.java
+│   └── ...
+├── repositories/
+│   ├── UserRepository.java
+│   └── ComplaintRepository.java
+└── TranslatorApplication.java       # Spring Boot entry point
+```
+
+##  Configuration
+
+### application.properties
+
+```properties
+# Server configuration
+# Gemini API
+# MySQL Database
+# JPA/Hibernate
+# Logging
+```
+
+### prompts.properties
+
+File containing system prompts for Gemini API:
+- `prompt.text.darija` - Text translation to Darija
+- `prompt.text.french` - Text translation to French
+- `prompt.text.spanish` - Text translation to Spanish
+- `prompt.text.german` - Text translation to German
+- `prompt.text.arabic` - Text translation to Standard Arabic
+- `prompt.image.darija` - Image analysis and translation
+- `prompt.detect.language` - Language detection
+
+##  Installation and Startup
+
+### Prerequisites
+
+- Java 11+
+- Maven 3.6+
+- MySQL 8.0+
+- Google Gemini API Key
+
+### Installation Steps
+
+1. **Clone the project**
+```bash
+git clone [REPO_URL]
+cd translator-backend
+```
+
+2. **Create the database**
+```sql
+CREATE DATABASE translator CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+3. **Configure properties**
+   - Update `application.properties` with your MySQL credentials
+   - Add your Gemini API key
+
+4. **Compile and run**
+```bash
+mvn clean install
+mvn spring-boot:run
+```
+
+5. **Verify startup**
+```
+Application démarrée !
+Translator API: http://localhost:8080/api/translator
+```
+
+##  API Endpoints
+
+### Authentication (`/api/auth`)
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/signup` | Public | Register a new user |
+| POST | `/login` | Public | User login |
+| GET | `/users` | Authenticated | List all users |
+| GET | `/check-username/{username}` | Public | Check username availability |
+| PUT | `/{userId}/promote-to-admin` | ADMIN | Promote user to admin |
+
+**Signup request example:**
+```json
+POST /api/auth/signup
+{
+  "username": "hanane-malki",
+  "email": "hanane-malki@gmail.com",
+  "password": "hanane123"
+}
+```
+
+
+###  Translation (`/api/translator`)
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/translate/text` | Authenticated | Text translation |
+| POST | `/translate/image` | Authenticated | Image translation (multipart) |
+| POST | `/translate/image-base64` | Authenticated | Image translation (base64) |
+| POST | `/translate/audio` | Authenticated | Audio translation |
+| GET | `/languages` | Public | List supported languages |
+| GET | `/health` | Public | API health check |
+
+**Supported Languages:**
+- Darija (Moroccan) 
+- French 
+- Spanish 
+- German 
+- Standard Arabic 
+- English 
+
+**Text translation example:**
+```json
+POST /api/translator/translate/text
+Authorization: Basic [token]
+{
+  "text": "Hello, how are you?",
+  "sourceLanguage": "english",
+  "targetLanguage": "darija",
+  "type": "TEXT"
+}
+```
+
+**Response:**
+```json
+{
+  "originalText": "Hello, how are you?",
+  "translatedText": "السلام، كيداير؟",
+  "sourceLanguage": "english",
+  "targetLanguage": "darija",
+  "imageTranslation": false,
+  "audioTranslation": false
+}
+```
+
+###  Complaints (`/api/complaints`)
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/` | Authenticated | Create a complaint |
+| GET | `/all` | ADMIN | All complaints |
+| GET | `/my-complaints` | Authenticated | My complaints |
+| GET | `/{id}` | Authenticated | Complaint details |
+| GET | `/status/{status}` | ADMIN | Complaints by status |
+| GET | `/stats` | ADMIN | Complaint statistics |
+| GET | `/types` | Public | Complaint types |
+| PUT | `/{id}/status` | ADMIN | Update status |
+| PUT | `/{id}/response` | ADMIN | Add admin response |
+| PUT | `/{id}/priority` | ADMIN | Update priority |
+| DELETE | `/{id}` | ADMIN | Delete complaint |
+
+**Complaint Types:**
+- `TRANSLATION_ERROR` - Translation error
+- `TECHNICAL_ISSUE` - Technical issue
+- `FEATURE_REQUEST` - Feature request
+- `ACCOUNT_ISSUE` - Account issue
+- `OTHER` - Other
+
+**Statuses:**
+- `PENDING` - Pending
+- `IN_PROGRESS` - In progress
+- `RESOLVED` - Resolved
+- `CLOSED` - Closed
+
+**Priorities:**
+- `LOW` - Low
+- `MEDIUM` - Medium
+- `HIGH` - High
+- `URGENT` - Urgent
+
+## Security
+
+### Basic Authentication
+
+The API uses Basic Authentication with Spring Security:
+```
+Authorization: Basic base64(username:password)
+```
+
+### Roles
+
+- **USER**: Access to translations and own complaints
+- **ADMIN**: Full access including complaint and user management
+
+### CORS
+
+Permissive CORS configuration for development:
+```java
+allowedOrigins: ["http://localhost:3000", "*"]
+allowedMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+```
+
+##  Important Technical Points
+
+### 1. WebClient for API Calls
+
+```java
+@Bean
+public WebClient.Builder webClientBuilder() {
+    return WebClient.builder();
+}
+```
+
+Used in `TranslationServiceDefault` to communicate with Gemini API.
+
+### 2. Transactions
+
+```java
+@Transactional
+public Complaint createComplaint(...)
+```
+
+All database write operations are transactional.
+
+### 3. Error Handling
+
+Using a unified `ErrorResponse` model:
+```java
+return ResponseEntity.badRequest()
+    .body(new ErrorResponse("INVALID_INPUT", "Description is required"));
+```
+
+### 4. Validation
+
+- Service-side validation with `IllegalArgumentException` exceptions
+- Controller-level validation with `@Valid`
+- Business logic checks in services
+
+##  Database
+
+### Main Entities
+
+**User**
+- id (PK)
+- username (unique)
+- email (unique)
+- password (BCrypt)
+- roles (String: "USER" or "ADMIN")
+
+**Complaint**
+- id (PK)
+- username (FK User)
+- subject
+- description
+- type (Enum)
+- status (Enum)
+- priority (Enum)
+- adminUsername
+- adminResponse
+- createdAt
+- updatedAt
+
+##  Testing
+
+To test the API:
+
+
+1. **Signup**
+```bash
+curl -X POST http://localhost:8080/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","email":"admin@gmail.com","password":"admin123"}'
+```
+
+2. **Translation with authentication**
+```bash
+curl -X POST http://localhost:8080/api/translator/translate/text \
+  -u admin:admin123 \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Hello","targetLanguage":"darija"}'
+```
+
+### Implemented Features
+
+Complete authentication with Spring Security  
+Role management (USER/ADMIN)  
+Multimodal translation (text, image, audio)  
+Complete complaint workflow system  
+Gemini API integration  
+JSON serialization with Jackson  
+Transaction management  
+CORS configured for development  
+Data validation  
+Unified error handling  
+Statistics and reporting  
+
+
+##  Author
+
+**Hanane Malki**  
+Project developed as part of the Generative AI module
