@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .antMatchers("/api/complaints/*/status").hasRole("ADMIN")
                 .antMatchers("/api/complaints/*/response").hasRole("ADMIN")
                 .antMatchers("/api/complaints/*/priority").hasRole("ADMIN")
-                .antMatchers("/api/auth/*/promote-to-admin").hasRole("ADMIN")  // ✅ Ajouté
+                .antMatchers("/api/auth/*/promote-to-admin").hasRole("ADMIN")  
                 .antMatchers("/api/auth/users").authenticated()
                 .antMatchers("/api/complaints/**").authenticated()
                 .anyRequest().authenticated()

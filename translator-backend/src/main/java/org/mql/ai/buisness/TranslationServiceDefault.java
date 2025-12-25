@@ -126,6 +126,22 @@ public class TranslationServiceDefault implements TranslationService {
     }
     
     
+    
+    
+    // Prompt generators
+    private String getPromptForLanguage(String targetLang, String text) {
+        String prompt = switch (targetLang.toLowerCase()) {
+            case "darija", "moroccan" -> promptDarija;
+            case "french", "fr" -> promptFrench;
+            case "spanish", "es" -> promptSpanish;
+            case "german", "de" -> promptGerman;
+            case "arabic", "ar" -> promptArabic;
+            default -> promptDarija;
+        };
+        
+        return prompt.replace("{text}", text);
+    }
+    
     // call Gemini API with different media types
     private String callGeminiAPI(String prompt, String mediaBase64, String mimeType) throws Exception {
         Map<String, Object> requestBody = new HashMap<>();
@@ -159,7 +175,7 @@ public class TranslationServiceDefault implements TranslationService {
         return extractTranslation(response);
     }
     
-    //Extract translation from Gemini API response
+    //extract translation from Gemini API response
     private String extractTranslation(String jsonResponse) throws Exception {
         JsonNode root = objectMapper.readTree(jsonResponse);
         JsonNode candidates = root.path("candidates");
@@ -174,22 +190,7 @@ public class TranslationServiceDefault implements TranslationService {
         }
         
         throw new Exception("Unable to extract translation from Gemini response");
-    }
-    
-    // Prompt generators
-    private String getPromptForLanguage(String targetLang, String text) {
-        String prompt = switch (targetLang.toLowerCase()) {
-            case "darija", "moroccan" -> promptDarija;
-            case "french", "fr" -> promptFrench;
-            case "spanish", "es" -> promptSpanish;
-            case "german", "de" -> promptGerman;
-            case "arabic", "ar" -> promptArabic;
-            default -> promptDarija;
-        };
-        
-        return prompt.replace("{text}", text);
-    }
-    
+    } 
     private String getImagePromptForLanguage(String targetLang) {
         return switch (targetLang.toLowerCase()) {
             case "darija", "moroccan" -> promptImageDarija;
@@ -234,7 +235,6 @@ public class TranslationServiceDefault implements TranslationService {
     }
     
     // Validation methods 
-    
     private void validateTextRequest(TranslationRequest request) {
         if (request.getText() == null || request.getText().trim().isEmpty()) {
             throw new IllegalArgumentException("Text is required for translation");
@@ -262,8 +262,7 @@ public class TranslationServiceDefault implements TranslationService {
         }
     }
     
-    // Response builders
-    
+    // Response 
     private TranslationResponse buildTextResponse(TranslationRequest request, String translation) {
         TranslationResponse response = new TranslationResponse();
         response.setOriginalText(request.getText());

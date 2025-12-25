@@ -61,7 +61,6 @@ public class Complaint {
         this.type = type;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
